@@ -12,19 +12,21 @@ const rechargeRoutes = require('./routes/rechargeRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
 
 const app = express();
+
+// ✅ Setup CORS for Vercel frontend
 const corsOptions = {
   origin: [
-    "https://your-frontend.vercel.app", // replace with your deployed Vercel frontend URL
+    "https://instameal-frontend.vercel.app", // 👈 replace with your actual Vercel frontend URL
   ],
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 };
-
 app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use(morgan('dev'));
+
 app.use('/api/meals', mealRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/cards', cardRoutes);
