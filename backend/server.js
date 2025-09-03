@@ -16,7 +16,7 @@ const app = express();
 // ✅ Setup CORS for Vercel frontend
 const corsOptions = {
   origin: [
-    "https://instameal-frontend.vercel.app", // 👈 replace with your actual Vercel frontend URL
+    "https://insta-meal.vercel.app", 
   ],
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
