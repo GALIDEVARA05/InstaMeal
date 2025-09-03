@@ -1,13 +1,20 @@
-// axios instance with auth header + baseURL
+// src/api/axios.js
 import axios from "axios";
 
+const baseURL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+
+// 🔍 Debug log (shows in browser console)
+console.log("🔗 Axios BaseURL:", baseURL);
+
 const api = axios.create({
-  baseURL: "http://localhost:5000/api", // <- adjust if different
+  baseURL,
 });
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
   return config;
 });
 
