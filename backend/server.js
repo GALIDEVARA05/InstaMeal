@@ -12,7 +12,17 @@ const rechargeRoutes = require('./routes/rechargeRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
 
 const app = express();
-app.use(cors());
+const corsOptions = {
+  origin: [
+    "https://your-frontend.vercel.app", // replace with your deployed Vercel frontend URL
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+
 app.use(express.json());
 app.use(morgan('dev'));
 app.use('/api/meals', mealRoutes);
