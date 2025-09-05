@@ -14,15 +14,15 @@ const transactionRoutes = require('./routes/transactionRoutes');
 const app = express();
 
 // ✅ Setup CORS for Vercel frontend
-// const corsOptions = {
-//   origin: [
-//     "https://insta-meal.vercel.app", 
-//   ],
-//   methods: ["GET", "POST", "PUT", "DELETE"],
-//   allowedHeaders: ["Content-Type", "Authorization"],
-//   credentials: true,
-// };
-app.use(cors());//corsOptions
+const corsOptions = {
+  origin: [
+    "https://insta-meal.vercel.app", 
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+};
+app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use(morgan('dev'));
