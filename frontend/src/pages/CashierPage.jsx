@@ -270,291 +270,342 @@ export default function CashierPage() {
   try {
     if (error) return <ErrorFallback error={error} />;
 
-    return (
-      <div className="min-h-screen relative flex items-start justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-gray-900 p-6">
-        <ToastContainer position="top-right" autoClose={2500} theme="colored" />
+   return (
+  <div className="min-h-screen relative flex items-start justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-gray-900 p-3 sm:p-6">
+    <ToastContainer position="top-right" autoClose={2500} theme="colored" />
 
-        {/* Logout Button */}
-        <button
-          onClick={handleLogout}
-          className="absolute top-6 right-6 bg-gradient-to-r from-red-500 to-rose-600 hover:scale-105 transform text-white px-5 py-2 rounded-xl shadow-md transition"
-        >
-          Logout
-        </button>
+    {/* Logout Button */}
+    <button
+      onClick={handleLogout}
+      className="absolute top-12 right-6 sm:top-6 sm:right-6 bg-gradient-to-r from-red-500 to-rose-600 hover:scale-105 transform text-white px-4 py-2 sm:px-5 sm:py-2 rounded-xl shadow-md transition text-sm sm:text-base"
+    >
+      Logout
+    </button>
 
-        {/* Layout: Dashboard (left) + Selected Items Panel (right/outside) */}
-        <div className="w-full max-w-6xl flex flex-col md:flex-row gap-6">
-          {/* Main Cashier Dashboard (left) */}
-          <div className="bg-white/95 backdrop-blur-lg p-10 rounded-2xl shadow-2xl flex-1 border border-gray-200">
-            <h2 className="text-3xl font-extrabold text-slate-800 text-center mb-4">💳 Cashier Dashboard</h2>
+    {/* Layout: flex-row for desktop, stacked for mobile */}
+    <div className="w-full max-w-6xl flex flex-col md:flex-row gap-4 sm:gap-6">
+      {/* Main Cashier Dashboard */}
+      <div className="bg-white/95 backdrop-blur-lg p-5 sm:p-10 rounded-2xl shadow-2xl flex-1 border border-gray-200">
+        <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-800 text-center mb-4">
+          💳 Cashier Dashboard
+        </h2>
 
-            {/* Tabs */}
-            <div className="flex justify-center gap-4 mb-6">
-              <button
-                onClick={() => setActiveTab("student")}
-                className={`px-6 py-3 rounded-xl font-bold ${
-                  activeTab === "student" ? "bg-indigo-600 text-white shadow-md" : "bg-gray-200 text-gray-700"
-                }`}
-              >
-                Student Items
-              </button>
-              <button
-                onClick={() => setActiveTab("manual")}
-                className={`px-6 py-3 rounded-xl font-bold ${
-                  activeTab === "manual" ? "bg-indigo-600 text-white shadow-md" : "bg-gray-200 text-gray-700"
-                }`}
-              >
-                Manual Add Items
-              </button>
-            </div>
-
-            {/* Common Roll No Input */}
-            <div className="flex gap-3 mb-6">
-              <input
-                value={rollNo}
-                onChange={(e) => setRollNo(e.target.value)}
-                className="flex-1 border rounded-xl px-3 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                placeholder="Enter Roll No"
-              />
-              {activeTab === "student" && (
-                <button
-                  onClick={fetchStudentItems}
-                  className="px-5 py-3 bg-gradient-to-r from-sky-500 to-indigo-600 text-white font-semibold rounded-xl shadow-md hover:scale-105 transform transition"
-                  disabled={studentLoading}
-                >
-                  {studentLoading ? "Loading..." : "View Items"}
-                </button>
-              )}
-            </div>
-
-            {/* Student Items content */}
-            {activeTab === "student" && (
-              <div>
-                {studentLoading ? (
-                  <p className="text-gray-600 italic">Loading...</p>
-                ) : studentFetchError ? (
-                  <p className="text-rose-600 italic">{studentFetchError}</p>
-                ) : studentItems.length === 0 ? (
-                  <p className="text-gray-600 italic">No items selected.</p>
-                ) : (
-                  <ul className="divide-y divide-gray-200 mb-4">
-                    {studentItems.map((i) => (
-                      <li key={i._id} className="flex justify-between py-2 text-gray-800">
-                        <span>{i.meal?.name} x {i.quantity}</span>
-                        <span>₹{(i.meal?.price || 0) * (i.quantity || 0)}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-
-                <div className="flex justify-between items-center mt-4">
-                  <h3 className="font-bold text-lg">Total: ₹{studentTotal}</h3>
-                  {/* Note: Charge button moved to the right side panel as requested */}
-                  <div className="text-sm text-gray-500">Finalize purchase from the right panel</div>
-                </div>
-              </div>
-            )}
-
-            {/* Manual Items content (left column) */}
-            {activeTab === "manual" && (
-              <>
-                {/* Filters */}
-                <div className="mb-4 flex flex-wrap gap-2">
-                  {["All", "Breakfast", "Lunch", "Snacks", "Dinner", "Biscuits", "Chocolate", "Drinks", "Ice cream", "Juices"].map(
-                    (cat) => (
-                      <button
-                        key={cat}
-                        onClick={() => setFilter(cat)}
-                        className={`px-4 py-2 rounded-full text-sm font-semibold transition ${
-                          filter === cat ? "bg-emerald-500 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                        }`}
-                      >
-                        {cat}
-                      </button>
-                    )
-                  )}
-                </div>
-
-                {/* Search */}
-                <div className="mb-6">
-                  <input
-                    type="text"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder="🔍 Search meals..."
-                    className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredMeals.map((m) => (
-                    <div key={m._id} className="rounded-xl border bg-white overflow-hidden shadow hover:shadow-md transition relative">
-                      <div className="relative w-full h-36">
-                        <div className="w-full h-36 flex items-center justify-center bg-white">
-                          <img
-                            src={m.imageUrl && m.imageUrl.trim() !== "" ? m.imageUrl : placeholderFor(m.name)}
-                            alt={m.name}
-                            className="max-h-32 max-w-full object-contain border border-gray-200"
-                          />
-                        </div>
-                        {!m.available && (
-                          <div className="absolute inset-0 bg-white/80 flex flex-col items-center justify-center z-10">
-                            <span className="text-rose-600 font-bold text-lg mb-1">Not available</span>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="p-4">
-                        <div className="flex items-center justify-between">
-                          <h4 className="font-semibold text-gray-800">{m.name}</h4>
-                          <span className="text-sm text-gray-600">₹{m.price}</span>
-                        </div>
-                        <div className="mt-3 flex justify-center items-center gap-2">
-                          <button
-                            onClick={() => removeItem(m._id)}
-                            className="px-3 py-2 rounded-lg text-white transition bg-rose-500 hover:bg-rose-600"
-                          >
-                            ➖
-                          </button>
-                          <span className="px-3 py-2 rounded-lg border text-gray-800 bg-gray-50 min-w-[32px] text-center">
-                            {manualItems[m._id]?.quantity || 0}
-                          </span>
-                          <button
-                            onClick={() => addItem(m)}
-                            className="px-3 py-2 rounded-lg text-white transition bg-emerald-500 hover:bg-emerald-600"
-                          >
-                            ➕
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* =========================
-              Selected Items Panel (outside the main dashboard)
-              ========================= */}
-          <aside className="md:w-[380px] w-full self-start bg-white/90 border border-gray-200 rounded-2xl shadow p-4">
-            <h3 className="text-lg font-semibold text-gray-700 mb-3">Your Selected Items</h3>
-
-            {/* If student tab active -> show studentItems; else manualItems */}
-            {activeTab === "student" ? (
-              <>
-                {studentItems.length === 0 ? (
-                  <p className="text-gray-600 italic">No items selected.</p>
-                ) : (
-                  <ul className="space-y-2 max-h-[60vh] overflow-auto pr-2">
-                    {studentItems.map((it) => (
-                      <li key={it.meal?._id || it._id} className="flex items-center justify-between p-3 rounded-lg border bg-gray-50">
-                        <span className="text-gray-800">{it.meal?.name} × {it.quantity}</span>
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => removeStudentItem(it.meal?._id)}
-                            className="px-2 py-1 bg-rose-500 hover:bg-rose-600 text-white rounded"
-                          >
-                            ➖
-                          </button>
-                          <span className="px-3 py-1 rounded-lg border text-gray-800 bg-white min-w-[32px] text-center">
-                            {it.quantity}
-                          </span>
-                          <button
-                            onClick={() => addStudentItem(it.meal?._id, 1)}
-                            className="px-2 py-1 bg-emerald-500 hover:bg-emerald-600 text-white rounded"
-                          >
-                            ➕
-                          </button>
-                          <button
-                            onClick={async () => {
-                              // remove completely: repeatedly call removeStudentItem or call endpoint to remove n qty
-                              const qtyToRemove = it.quantity || 0;
-                              for (let i = 0; i < qtyToRemove; i++) {
-                                // sequentially remove to ensure server consistency; optimistic update already handled inside function
-                                // small delay not needed
-                                // eslint-disable-next-line no-await-in-loop
-                                await removeStudentItem(it.meal?._id);
-                              }
-                            }}
-                            className="px-2 py-1 bg-gray-400 hover:bg-gray-500 text-white rounded"
-                          >
-                            ❌
-                          </button>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-
-                <div className="mt-3 text-right font-semibold text-gray-800 w-full">Total: ₹{studentTotal}</div>
-                <p className="text-xs text-gray-500 mt-1 w-full">Final payment happens at cashier.</p>
-
-                <div className="mt-6 w-full flex justify-end">
-                  <button
-                    onClick={chargeStudentItems}
-                    disabled={studentItems.length === 0}
-                    className="px-5 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-700 text-white hover:scale-105 transform shadow-md disabled:opacity-60"
-                  >
-                    ✅ Charge
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                {Object.values(manualItems).length === 0 ? (
-                  <p className="text-gray-600 italic">No items selected.</p>
-                ) : (
-                  <ul className="space-y-2 max-h-[60vh] overflow-auto pr-2">
-                    {Object.values(manualItems).map((it) => (
-                      <li key={it.meal._id} className="flex items-center justify-between p-3 rounded-lg border bg-gray-50">
-                        <span className="text-gray-800">{it.meal.name} × {it.quantity}</span>
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => removeItem(it.meal._id)}
-                            className="px-2 py-1 bg-rose-500 hover:bg-rose-600 text-white rounded"
-                          >
-                            ➖
-                          </button>
-                          <span className="px-3 py-1 rounded-lg border text-gray-800 bg-white min-w-[32px] text-center">
-                            {it.quantity}
-                          </span>
-                          <button
-                            onClick={() => addItem(it.meal)}
-                            className="px-2 py-1 bg-emerald-500 hover:bg-emerald-600 text-white rounded"
-                          >
-                            ➕
-                          </button>
-                          <button
-                            onClick={() => removeAll(it.meal._id)}
-                            className="px-2 py-1 bg-gray-400 hover:bg-gray-500 text-white rounded"
-                          >
-                            ❌
-                          </button>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-
-                <div className="mt-3 text-right font-semibold text-gray-800 w-full">Total: ₹{manualTotal}</div>
-                <p className="text-xs text-gray-500 mt-1 w-full">Final payment happens at cashier.</p>
-
-                <div className="mt-6 w-full flex justify-end">
-                  <button
-                    onClick={chargeManualPurchase}
-                    disabled={manualTotal === 0}
-                    className="px-5 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 text-white hover:scale-105 transform shadow-md disabled:opacity-60"
-                  >
-                    ✅ Charge
-                  </button>
-                </div>
-              </>
-            )}
-          </aside>
+        {/* Tabs */}
+        <div className="flex justify-center gap-2 sm:gap-4 mb-6 flex-wrap">
+          <button
+            onClick={() => setActiveTab("student")}
+            className={`px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-bold text-sm sm:text-base ${
+              activeTab === "student"
+                ? "bg-indigo-600 text-white shadow-md"
+                : "bg-gray-200 text-gray-700"
+            }`}
+          >
+            Student Items
+          </button>
+          <button
+            onClick={() => setActiveTab("manual")}
+            className={`px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-bold text-sm sm:text-base ${
+              activeTab === "manual"
+                ? "bg-indigo-600 text-white shadow-md"
+                : "bg-gray-200 text-gray-700"
+            }`}
+          >
+            Manual Add Items
+          </button>
         </div>
+
+        {/* Roll Number Input */}
+        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+          <input
+            value={rollNo}
+            onChange={(e) => setRollNo(e.target.value)}
+            className="flex-1 border rounded-xl px-3 py-2 sm:py-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="Enter Roll No"
+          />
+          {activeTab === "student" && (
+            <button
+              onClick={fetchStudentItems}
+              className="px-4 py-2 sm:px-5 sm:py-3 bg-gradient-to-r from-sky-500 to-indigo-600 text-white font-semibold rounded-xl shadow-md hover:scale-105 transform transition text-sm sm:text-base"
+              disabled={studentLoading}
+            >
+              {studentLoading ? "Loading..." : "View Items"}
+            </button>
+          )}
+        </div>
+
+        {/* Student Tab Content */}
+        {activeTab === "student" && (
+          <div>
+            {studentLoading ? (
+              <p className="text-gray-600 italic">Loading...</p>
+            ) : studentFetchError ? (
+              <p className="text-rose-600 italic">{studentFetchError}</p>
+            ) : studentItems.length === 0 ? (
+              <p className="text-gray-600 italic">No items selected.</p>
+            ) : (
+              <ul className="divide-y divide-gray-200 mb-4">
+                {studentItems.map((i) => (
+                  <li
+                    key={i._id}
+                    className="flex justify-between py-2 text-gray-800 text-sm sm:text-base"
+                  >
+                    <span>
+                      {i.meal?.name} × {i.quantity}
+                    </span>
+                    <span>
+                      ₹{(i.meal?.price || 0) * (i.quantity || 0)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mt-4 text-sm sm:text-base">
+              <h3 className="font-bold">Total: ₹{studentTotal}</h3>
+              <div className="text-gray-500">
+                Finalize purchase from the right panel
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Manual Tab Content */}
+        {activeTab === "manual" && (
+          <>
+            {/* Filters */}
+            <div className="mb-4 flex flex-wrap gap-2">
+              {[
+                "All",
+                "Breakfast",
+                "Lunch",
+                "Snacks",
+                "Dinner",
+                "Biscuits",
+                "Chocolate",
+                "Drinks",
+                "Ice cream",
+                "Juices",
+              ].map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setFilter(cat)}
+                  className={`px-3 py-1 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-semibold transition ${
+                    filter === cat
+                      ? "bg-emerald-500 text-white"
+                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            {/* Search */}
+            <div className="mb-6">
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="🔍 Search meals..."
+                className="w-full border rounded-lg px-3 py-2 sm:px-4 sm:py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              />
+            </div>
+
+            {/* ✅ Meals Grid fixed for 2 per row on mobile */}
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+              {filteredMeals.map((m) => (
+                <div
+                  key={m._id}
+                  className="rounded-xl border bg-white overflow-hidden shadow hover:shadow-md transition relative"
+                >
+                  <div className="relative w-full h-32 sm:h-36 flex items-center justify-center bg-white">
+                    <img
+                      src={
+                        m.imageUrl && m.imageUrl.trim() !== ""
+                          ? m.imageUrl
+                          : placeholderFor(m.name)
+                      }
+                      alt={m.name}
+                      className="max-h-28 sm:max-h-32 max-w-full object-contain border border-gray-200"
+                    />
+                    {!m.available && (
+                      <div className="absolute inset-0 bg-white/80 flex flex-col items-center justify-center z-10">
+                        <span className="text-rose-600 font-bold text-sm sm:text-lg mb-1">
+                          Not available
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="p-3 sm:p-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-semibold text-gray-800 text-sm sm:text-base">
+                        {m.name}
+                      </h4>
+                      <span className="text-xs sm:text-sm text-gray-600">
+                        ₹{m.price}
+                      </span>
+                    </div>
+                    <div className="mt-2 sm:mt-3 flex justify-center items-center gap-2">
+                      <button
+                        onClick={() => removeItem(m._id)}
+                        className="px-2 py-1 sm:px-3 sm:py-2 rounded-lg text-white transition bg-rose-500 hover:bg-rose-600 text-sm"
+                      >
+                        ➖
+                      </button>
+                      <span className="px-2 sm:px-3 py-1 sm:py-2 rounded-lg border text-gray-800 bg-gray-50 min-w-[28px] sm:min-w-[32px] text-center text-sm">
+                        {manualItems[m._id]?.quantity || 0}
+                      </span>
+                      <button
+                        onClick={() => addItem(m)}
+                        className="px-2 py-1 sm:px-3 sm:py-2 rounded-lg text-white transition bg-emerald-500 hover:bg-emerald-600 text-sm"
+                      >
+                        ➕
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </div>
-    );
+
+      {/* Right Panel (selected items) */}
+      <aside className="md:w-[380px] w-full self-start bg-white/90 border border-gray-200 rounded-2xl shadow p-4 sticky bottom-0 md:static">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-700 mb-3">
+          Your Selected Items
+        </h3>
+
+        {/* Content is same as before — no changes needed, just responsive text sizes */}
+        {activeTab === "student" ? (
+          <>
+            {studentItems.length === 0 ? (
+              <p className="text-gray-600 italic text-sm sm:text-base">
+                No items selected.
+              </p>
+            ) : (
+              <ul className="space-y-2 max-h-[50vh] md:max-h-[60vh] overflow-auto pr-2">
+                {studentItems.map((it) => (
+                  <li
+                    key={it.meal?._id || it._id}
+                    className="flex items-center justify-between p-2 sm:p-3 rounded-lg border bg-gray-50 text-sm sm:text-base"
+                  >
+                    <span>{it.meal?.name} × {it.quantity}</span>
+                    <div className="flex items-center gap-1 sm:gap-2">
+                      <button
+                        onClick={() => removeStudentItem(it.meal?._id)}
+                        className="px-2 py-1 bg-rose-500 hover:bg-rose-600 text-white rounded text-xs sm:text-sm"
+                      >
+                        ➖
+                      </button>
+                      <span className="px-2 sm:px-3 py-1 rounded-lg border text-gray-800 bg-white min-w-[28px] sm:min-w-[32px] text-center">
+                        {it.quantity}
+                      </span>
+                      <button
+                        onClick={() => addStudentItem(it.meal?._id, 1)}
+                        className="px-2 py-1 bg-emerald-500 hover:bg-emerald-600 text-white rounded text-xs sm:text-sm"
+                      >
+                        ➕
+                      </button>
+                      <button
+                        onClick={async () => {
+                          const qtyToRemove = it.quantity || 0;
+                          for (let i = 0; i < qtyToRemove; i++) {
+                            await removeStudentItem(it.meal?._id);
+                          }
+                        }}
+                        className="px-2 py-1 bg-gray-400 hover:bg-gray-500 text-white rounded text-xs sm:text-sm"
+                      >
+                        ❌
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <div className="mt-3 text-right font-semibold text-gray-800 w-full text-sm sm:text-base">
+              Total: ₹{studentTotal}
+            </div>
+            <p className="text-xs text-gray-500 mt-1 w-full">
+              Final payment happens at cashier.
+            </p>
+
+            <div className="mt-4 sm:mt-6 w-full flex justify-end">
+              <button
+                onClick={chargeStudentItems}
+                disabled={studentItems.length === 0}
+                className="w-full sm:w-auto px-4 sm:px-5 py-2 sm:py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-700 text-white hover:scale-105 transform shadow-md disabled:opacity-60 text-sm sm:text-base"
+              >
+                ✅ Charge
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            {Object.values(manualItems).length === 0 ? (
+              <p className="text-gray-600 italic text-sm sm:text-base">
+                No items selected.
+              </p>
+            ) : (
+              <ul className="space-y-2 max-h-[50vh] md:max-h-[60vh] overflow-auto pr-2">
+                {Object.values(manualItems).map((it) => (
+                  <li
+                    key={it.meal._id}
+                    className="flex items-center justify-between p-2 sm:p-3 rounded-lg border bg-gray-50 text-sm sm:text-base"
+                  >
+                    <span>{it.meal.name} × {it.quantity}</span>
+                    <div className="flex items-center gap-1 sm:gap-2">
+                      <button
+                        onClick={() => removeItem(it.meal._id)}
+                        className="px-2 py-1 bg-rose-500 hover:bg-rose-600 text-white rounded text-xs sm:text-sm"
+                      >
+                        ➖
+                      </button>
+                      <span className="px-2 sm:px-3 py-1 rounded-lg border text-gray-800 bg-white min-w-[28px] sm:min-w-[32px] text-center">
+                        {it.quantity}
+                      </span>
+                      <button
+                        onClick={() => addItem(it.meal)}
+                        className="px-2 py-1 bg-emerald-500 hover:bg-emerald-600 text-white rounded text-xs sm:text-sm"
+                      >
+                        ➕
+                      </button>
+                      <button
+                        onClick={() => removeAll(it.meal._id)}
+                        className="px-2 py-1 bg-gray-400 hover:bg-gray-500 text-white rounded text-xs sm:text-sm"
+                      >
+                        ❌
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <div className="mt-3 text-right font-semibold text-gray-800 w-full text-sm sm:text-base">
+              Total: ₹{manualTotal}
+            </div>
+            <p className="text-xs text-gray-500 mt-1 w-full">
+              Final payment happens at cashier.
+            </p>
+
+            <div className="mt-4 sm:mt-6 w-full flex justify-end">
+              <button
+                onClick={chargeManualPurchase}
+                disabled={manualTotal === 0}
+                className="w-full sm:w-auto px-4 sm:px-5 py-2 sm:py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 text-white hover:scale-105 transform shadow-md disabled:opacity-60 text-sm sm:text-base"
+              >
+                ✅ Charge
+              </button>
+            </div>
+          </>
+        )}
+      </aside>
+    </div>
+  </div>
+);
   } catch (e) {
     console.error(e);
     return <ErrorFallback error={e} />;
