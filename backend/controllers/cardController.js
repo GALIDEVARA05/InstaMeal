@@ -85,6 +85,32 @@ exports.removeItemFromCard = async (req, res) => {
 };
 
 // ===============================
+// Student: Remove Item from MealCard one by one
+// ===============================
+exports.decrementItemFromCard = async (req, res) => {
+  const { cardId, mealId } = req.body;
+  const card = await MealCard.findById(cardId);
+  if (!card) return res.status(404).json({ message: 'Card not found' });
+
+  if (card.studentRollNo !== req.user.rollNo) {
+    return res.status(403).json({ message: 'Not your card' });
+  }
+
+  const item = card.selectedItems.find(item => String(item.meal) === mealId);
+  if (!item) return res.status(404).json({ message: 'Item not found' });
+
+  if (item.quantity > 1) {
+    item.quantity -= 1;
+  } else {
+    // Remove the item completely if quantity is 1
+    card.selectedItems = card.selectedItems.filter(i => String(i.meal) !== mealId);
+  }
+
+  await card.save();
+  res.json({ message: 'Item decremented', selectedItems: card.selectedItems });
+};
+
+// ===============================
 // Cashier: View Selected Items Before Purchase
 // ===============================
 exports.getSelectedItems = async (req, res) => {

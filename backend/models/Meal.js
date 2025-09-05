@@ -12,7 +12,9 @@ const MealSchema = new Schema({
   isVeg: { type: Boolean, default: true },            // Veg/Non-veg flag
   description: { type: String },                      // Short description
   imageUrl: { type: String },                         // Optional image for frontend UI
-  available: { type: Boolean, default: true },        // Available for order
+  available: { type: Boolean, default: true },
+  quantity: { type: Number, default: 0, min: 0 } , 
+  priceOptions: [{ type: Number }],       // Available for order
   createdAt: { type: Date, default: Date.now }
 });
 

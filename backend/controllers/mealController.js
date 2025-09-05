@@ -18,12 +18,20 @@ exports.listMeals = async (req, res) => {
 // 📌 Create a meal (admin/manager only)
 exports.createMeal = async (req, res) => {
   try {
-    const { name, price, category, imageUrl } = req.body;
+    const { name, price, category, imageUrl, quantity } = req.body;
     if (!name || !price) {
       return res.status(400).json({ message: "Name and price are required" });
     }
 
-    const meal = new Meal({ name, price, category, imageUrl });
+    // ✅ include quantity if provided
+    const meal = new Meal({
+      name,
+      price,
+      category,
+      imageUrl,
+      quantity: quantity ?? 0, // default 0 if not passed
+    });
+
     await meal.save();
     res.status(201).json({ message: "Meal created successfully", meal });
   } catch (err) {
@@ -35,7 +43,16 @@ exports.createMeal = async (req, res) => {
 exports.updateMeal = async (req, res) => {
   try {
     const { id } = req.params;
-    const meal = await Meal.findByIdAndUpdate(id, req.body, { new: true });
+
+    // ✅ Allow updating quantity, but ensure it never goes below 0
+    if (req.body.quantity !== undefined && req.body.quantity < 0) {
+      return res.status(400).json({ message: "Quantity cannot be negative" });
+    }
+
+    const meal = await Meal.findByIdAndUpdate(id, req.body, {
+      new: true,
+      runValidators: true, // ensures schema rules apply (e.g., min: 0 for quantity)
+    });
 
     if (!meal) {
       return res.status(404).json({ message: "Meal not found" });
@@ -46,6 +63,7 @@ exports.updateMeal = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 // 📌 Delete a meal (admin/manager only)
 exports.deleteMeal = async (req, res) => {
