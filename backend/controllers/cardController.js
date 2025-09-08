@@ -42,13 +42,14 @@ exports.getCardByStudent = async (req, res) => {
 // Student: Add Item(s) to MealCard
 // ===============================
 exports.addItemToCard = async (req, res) => {
-  const { cardId, mealId, quantity } = req.body;
-  if (!cardId || !mealId) return res.status(400).json({ message: 'Missing fields' });
+  const { cardId, mealId, price, quantity } = req.body;
+  if (!cardId || !mealId || !price) {
+    return res.status(400).json({ message: 'Missing fields' });
+  }
 
   const card = await MealCard.findById(cardId);
   if (!card) return res.status(404).json({ message: 'Card not found' });
 
-  // ensure only student who owns rollNo can modify
   if (card.studentRollNo !== req.user.rollNo) {
     return res.status(403).json({ message: 'Not your card' });
   }
@@ -56,11 +57,15 @@ exports.addItemToCard = async (req, res) => {
   const meal = await Meal.findById(mealId);
   if (!meal || !meal.available) return res.status(404).json({ message: 'Meal not available' });
 
-  const existing = card.selectedItems.find(item => String(item.meal) === mealId);
+  // ✅ check by both meal + price
+  const existing = card.selectedItems.find(
+    item => String(item.meal) === mealId && item.price === price
+  );
+
   if (existing) {
     existing.quantity += quantity || 1;
   } else {
-    card.selectedItems.push({ meal: mealId, quantity: quantity || 1 });
+    card.selectedItems.push({ meal: mealId, price, quantity: quantity || 1 });
   }
 
   await card.save();
@@ -71,24 +76,39 @@ exports.addItemToCard = async (req, res) => {
 // Student: Remove Item from MealCard
 // ===============================
 exports.removeItemFromCard = async (req, res) => {
-  const { cardId, mealId } = req.body;
-  const card = await MealCard.findById(cardId);
-  if (!card) return res.status(404).json({ message: 'Card not found' });
+  try {
+    const { cardId, mealId, price } = req.body;
+    if (!cardId || !mealId || !price) {
+      return res.status(400).json({ message: "Missing fields" });
+    }
 
-  if (card.studentRollNo !== req.user.rollNo) {
-    return res.status(403).json({ message: 'Not your card' });
+    const card = await MealCard.findById(cardId);
+    if (!card) return res.status(404).json({ message: "Card not found" });
+
+    if (card.studentRollNo !== req.user.rollNo) {
+      return res.status(403).json({ message: "Not your card" });
+    }
+
+    card.selectedItems = card.selectedItems.filter((item) => {
+      const mealIdStr = item.meal?._id ? String(item.meal._id) : String(item.meal);
+      return !(mealIdStr === String(mealId) && item.price === price);
+    });
+
+    await card.save();
+    res.json({ message: "Item removed", selectedItems: card.selectedItems });
+  } catch (err) {
+    console.error("❌ removeItemFromCard error:", err);
+    res.status(500).json({ message: "Server error removing item" });
   }
-
-  card.selectedItems = card.selectedItems.filter(item => String(item.meal) !== mealId);
-  await card.save();
-  res.json({ message: 'Item removed', selectedItems: card.selectedItems });
 };
+
+
 
 // ===============================
 // Student: Remove Item from MealCard one by one
 // ===============================
 exports.decrementItemFromCard = async (req, res) => {
-  const { cardId, mealId } = req.body;
+  const { cardId, mealId, price } = req.body;
   const card = await MealCard.findById(cardId);
   if (!card) return res.status(404).json({ message: 'Card not found' });
 
@@ -96,19 +116,23 @@ exports.decrementItemFromCard = async (req, res) => {
     return res.status(403).json({ message: 'Not your card' });
   }
 
-  const item = card.selectedItems.find(item => String(item.meal) === mealId);
+  const item = card.selectedItems.find(
+    item => String(item.meal) === mealId && item.price === price
+  );
   if (!item) return res.status(404).json({ message: 'Item not found' });
 
   if (item.quantity > 1) {
     item.quantity -= 1;
   } else {
-    // Remove the item completely if quantity is 1
-    card.selectedItems = card.selectedItems.filter(i => String(i.meal) !== mealId);
+    card.selectedItems = card.selectedItems.filter(
+      i => !(String(i.meal) === mealId && i.price === price)
+    );
   }
 
   await card.save();
   res.json({ message: 'Item decremented', selectedItems: card.selectedItems });
 };
+
 
 // ===============================
 // Cashier: View Selected Items Before Purchase
@@ -119,7 +143,7 @@ exports.getSelectedItems = async (req, res) => {
   if (!card) return res.status(404).json({ message: 'Card not found' });
 
   const total = card.selectedItems.reduce((sum, item) => {
-    return sum + item.meal.price * item.quantity;
+    return sum + item.price * item.quantity;   // ✅ use selected price
   }, 0);
 
   res.json({
@@ -130,6 +154,7 @@ exports.getSelectedItems = async (req, res) => {
     totalCost: total
   });
 };
+
 
 // ===============================
 // Cashier: Finalize Purchase
@@ -154,9 +179,10 @@ exports.finalizePurchase = async (req, res) => {
     }
 
     const total = card.selectedItems.reduce(
-      (sum, item) => sum + item.meal.price * item.quantity,
-      0
-    );
+  (sum, item) => sum + item.price * item.quantity,
+  0
+);
+
 
     // ✅ Prevent purchase if total = 0 (e.g., items without price)
     if (total <= 0) {

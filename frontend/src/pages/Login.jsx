@@ -69,7 +69,6 @@ export default function Login() {
           Login
         </button>
       </form>
-      <ToastContainer position="top-right" autoClose={3000} theme="colored" />
     </div>
   );
 }

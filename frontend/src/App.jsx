@@ -1,8 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import { ToastContainer } from 'react-toastify';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import StudentPage from './pages/StudentPage';
@@ -25,14 +24,13 @@ function App() {
         <Route path="/cashier" element={<CashierPage />} />
       </Routes>
 
-      {/* Toast Container globally available */}
+      {/* ✅ Single ToastContainer for whole app */}
       <ToastContainer
         position="top-right"
-        autoClose={3000}
+        autoClose={2500}
         hideProgressBar={false}
-        newestOnTop
+        newestOnTop={false}
         closeOnClick
-        rtl={false}
         pauseOnFocusLoss
         draggable
         pauseOnHover

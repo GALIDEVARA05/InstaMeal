@@ -3,6 +3,7 @@ const Schema = mongoose.Schema;
 
 const SelectedItemSchema = new Schema({
   meal: { type: Schema.Types.ObjectId, ref: 'Meal', required: true },
+  price: { type: Number, required: true },
   quantity: { type: Number, default: 1, min: 1 }
 }, { _id: false });
 

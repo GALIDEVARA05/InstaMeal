@@ -14,6 +14,7 @@ router.post(
   cardCtrl.createCardForStudent
 );
 
+
 // ===============================
 // Get cards for a student (by rollNo instead of ObjectId)
 // ===============================
@@ -29,6 +30,7 @@ router.get(
 // ===============================
 router.post('/add-item', auth, roles(['student']), cardCtrl.addItemToCard);
 router.post('/remove-item', auth, roles(['student']), cardCtrl.removeItemFromCard);
+router.post('/decrement-item', auth, roles(['student']), cardCtrl.decrementItemFromCard);
 
 // ===============================
 // Cashier: view & finalize purchases
